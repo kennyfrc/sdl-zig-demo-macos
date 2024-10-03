@@ -17,7 +17,7 @@ pub fn build(b: *Builder) void {
             exe.linkSystemLibrary("SDL2");
             exe.linkLibC();
         } else if (target.getOsTag() == .macos) {
-            exe.addIncludeDir("/opt/homebrew/include");
+            exe.addIncludeDir("/opt/homebrew/include/SDL2");
             exe.linkSystemLibrary("SDL2");
             exe.linkFramework("CoreVideo");
             exe.linkFramework("CoreAudio");

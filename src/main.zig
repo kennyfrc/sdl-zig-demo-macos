@@ -1,5 +1,5 @@
 const c = @cImport({
-    @cInclude("SDL2/SDL.h");
+    @cInclude("SDL.h");
 });
 const assert = @import("std").debug.assert;
 
