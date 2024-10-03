@@ -1,6 +1,6 @@
-const Builder = @import("std").build.Builder;
+const std = @import("std");
 
-pub fn build(b: *Builder) void {
+pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
 
@@ -10,36 +10,25 @@ pub fn build(b: *Builder) void {
         .target = target,
         .optimize = optimize,
     });
-    if (target.isNativeOs()) {
-        if (target.getOsTag() == .linux) {
-            // The SDL package doesn't work for Linux yet, so we rely on system
-            // packages for now.
-            exe.linkSystemLibrary("SDL2");
-            exe.linkLibC();
-        } else if (target.getOsTag() == .macos) {
-            exe.addIncludeDir("/opt/homebrew/include/SDL2");
-            exe.linkSystemLibrary("SDL2");
-            exe.linkFramework("CoreVideo");
-            exe.linkFramework("CoreAudio");
-            exe.linkFramework("AudioToolbox");
-        } else {
-            const sdl_dep = b.dependency("sdl", .{
-                .optimize = .ReleaseFast,
-                .target = target,
-            });
-            exe.linkLibrary(sdl_dep.artifact("SDL2"));
-        }
+
+    if (target.getOsTag() == .macos) {
+        exe.addIncludeDir("/opt/homebrew/include/SDL2");
+        exe.linkSystemLibrary("SDL2");
+        exe.linkFramework("CoreVideo");
+        exe.linkFramework("CoreAudio");
+        exe.linkFramework("AudioToolbox");
+    } else if (target.getOsTag() == .linux) {
+        exe.linkSystemLibrary("SDL2");
+        exe.linkLibC();
     } else {
-        const sdl_dep = b.dependency("sdl", .{
-            .optimize = .ReleaseFast,
-            .target = target,
-        });
-        exe.linkLibrary(sdl_dep.artifact("SDL2"));
+        @panic("Unsupported OS");
     }
 
     b.installArtifact(exe);
 
-    const run = b.step("run", "Run the demo");
     const run_cmd = b.addRunArtifact(exe);
-    run.dependOn(&run_cmd.step);
+    run_cmd.step.dependOn(b.getInstallStep());
+
+    const run_step = b.step("run", "Run the demo");
+    run_step.dependOn(&run_cmd.step);
 }
