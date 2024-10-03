@@ -11,13 +11,13 @@ pub fn build(b: *std.Build) void {
         .optimize = optimize,
     });
 
-    if (target.getOsTag() == .macos) {
+    if (target.os.tag == .macos) {
         exe.addIncludeDir("/opt/homebrew/include/SDL2");
         exe.linkSystemLibrary("SDL2");
         exe.linkFramework("CoreVideo");
         exe.linkFramework("CoreAudio");
         exe.linkFramework("AudioToolbox");
-    } else if (target.getOsTag() == .linux) {
+    } else if (target.os.tag == .linux) {
         exe.linkSystemLibrary("SDL2");
         exe.linkLibC();
     } else {
