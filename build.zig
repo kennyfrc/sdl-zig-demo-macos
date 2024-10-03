@@ -12,7 +12,7 @@ pub fn build(b: *std.Build) void {
     });
 
     if (target.result.os.tag == .macos) {
-        exe.c_include_dirs.append("/opt/homebrew/include/SDL2");
+        exe.addIncludePath("/opt/homebrew/include/SDL2");
         exe.linkSystemLibrary("SDL2");
         exe.linkFramework("CoreVideo");
         exe.linkFramework("CoreAudio");
