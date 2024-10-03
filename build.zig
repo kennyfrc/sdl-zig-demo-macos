@@ -10,11 +10,25 @@ pub fn build(b: *Builder) void {
         .target = target,
         .optimize = optimize,
     });
-    if (target.isNativeOs() and target.getOsTag() == .linux) {
-        // The SDL package doesn't work for Linux yet, so we rely on system
-        // packages for now.
-        exe.linkSystemLibrary("SDL2");
-        exe.linkLibC();
+    if (target.isNativeOs()) {
+        if (target.getOsTag() == .linux) {
+            // The SDL package doesn't work for Linux yet, so we rely on system
+            // packages for now.
+            exe.linkSystemLibrary("SDL2");
+            exe.linkLibC();
+        } else if (target.getOsTag() == .macos) {
+            exe.addIncludeDir("/opt/homebrew/include");
+            exe.linkSystemLibrary("SDL2");
+            exe.linkFramework("CoreVideo");
+            exe.linkFramework("CoreAudio");
+            exe.linkFramework("AudioToolbox");
+        } else {
+            const sdl_dep = b.dependency("sdl", .{
+                .optimize = .ReleaseFast,
+                .target = target,
+            });
+            exe.linkLibrary(sdl_dep.artifact("SDL2"));
+        }
     } else {
         const sdl_dep = b.dependency("sdl", .{
             .optimize = .ReleaseFast,
